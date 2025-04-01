@@ -130,6 +130,8 @@ Uncertainty over which model is closest to the data generating process is averag
 ## {}
 
 ::: columns
+::: {.column width="40%"}
+:::
 ::: {.column width="60%"}
 
 ### Australian ambulance costs
@@ -172,12 +174,15 @@ Will it change again following the 2024 drop?
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/mpho-mojapelo-s6Vv9u2qZyc-unsplash.jpg){.image-left}
 
 
 ## {}
 
 ::: columns
+::: {.column width="40%"}
+:::
+
 ::: {.column width="60%"}
 
 ### Australian ambulance costs
@@ -199,7 +204,7 @@ ambulance_fc |>
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/mpho-mojapelo-s6Vv9u2qZyc-unsplash.jpg){.image-left}
 
 
 ## {}
@@ -238,6 +243,8 @@ Combining probabilistic forecasts is done in two ways:
 ## {}
 
 ::: columns
+::: {.column width="40%"}
+:::
 ::: {.column width="60%"}
 
 ### Australian ambulance costs
@@ -256,13 +263,15 @@ ambulance_fc |>
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/mpho-mojapelo-s6Vv9u2qZyc-unsplash.jpg){.image-left}
 
 
 
 ## {}
 
 ::: columns
+::: {.column width="40%"}
+:::
 ::: {.column width="60%"}
 
 ### Australian ambulance costs
@@ -286,7 +295,7 @@ ambulance_fc |>
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/mpho-mojapelo-s6Vv9u2qZyc-unsplash.jpg){.image-left}
 
 
 ## {}
@@ -468,6 +477,9 @@ bind_rows(quant_ensemble, prob_ensemble) |>
 ## {}
 
 ::: columns
+
+::: {.column width="40%"}
+:::
 ::: {.column width="60%"}
 
 ### Ensemble mixtures
@@ -500,7 +512,7 @@ bind_rows(prob_fc, quant_fc) |>
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/mpho-mojapelo-s6Vv9u2qZyc-unsplash.jpg){.image-left}
 
 
 ## {}
@@ -530,12 +542,15 @@ This can simplify the modelling challenge, since each pattern can be forecasted 
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/steven-wright-mq8QogEBy00-unsplash.jpg){.image-right}
 
 
 ## {}
 
 ::: columns
+
+::: {.column width="40%"}
+:::
 ::: {.column width="60%"}
 
 ### PBS Cost
@@ -553,7 +568,7 @@ pbs_cost |>
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/roberto-sorin-RS0-h_pyByk-unsplash.jpg){.image-left}
 
 
 
@@ -574,11 +589,13 @@ I'll be showing decomposition via a STL model.
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/steven-wright-mq8QogEBy00-unsplash.jpg){.image-right}
 
 ## {}
 
 ::: columns
+::: {.column width="40%"}
+:::
 ::: {.column width="60%"}
 
 ### PBS Cost
@@ -597,7 +614,7 @@ pbs_cost |>
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/roberto-sorin-RS0-h_pyByk-unsplash.jpg){.image-left}
 
 
 ## {}
@@ -624,11 +641,13 @@ We usually model/forecast trend ($T$) and remainder ($R$) together with a single
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/steven-wright-mq8QogEBy00-unsplash.jpg){.image-right}
 
 ## {}
 
 ::: columns
+::: {.column width="40%"}
+:::
 ::: {.column width="60%"}
 
 ### PBS Cost
@@ -654,11 +673,13 @@ pbs_components |>
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/roberto-sorin-RS0-h_pyByk-unsplash.jpg){.image-left}
 
 ## {}
 
 ::: columns
+::: {.column width="40%"}
+:::
 ::: {.column width="60%"}
 
 ### PBS Cost
@@ -682,16 +703,16 @@ pbs_cost |>
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/roberto-sorin-RS0-h_pyByk-unsplash.jpg){.image-left}
 
 ## {}
 
 ::: columns
 ::: {.column width="60%"}
 
-### Forecasts reconciliation
+### Forecast reconciliation
 
-Forecasts reconciliation combine forecasts from:
+Forecast reconciliation combine forecasts from:
 
 * a **single** model, for
 * **each related** series.
@@ -710,7 +731,7 @@ This improves forecasting accuracy by sharing information between related series
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/nicole-avagliano-TeLjs2pL5fA-unsplash.jpg){.image-right}
 
 
 ## {}
@@ -746,7 +767,7 @@ We use reconciliation to adjust forecasts for *coherency*.
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/nicole-avagliano-TeLjs2pL5fA-unsplash.jpg){.image-right}
 
 
 
@@ -779,11 +800,15 @@ pbs_atc1_fc |>
 ## {}
 
 ::: columns
+::: {.column width="40%"}
+:::
 ::: {.column width="60%"}
 
 ### Forecasts aren't coherent
 
 ```{r}
+#| fig-height: 6
+#| fig-width: 7
 pbs_atc1_fc |> 
   filter(!is_aggregated(ATC1)) |> 
   summarise(.model = "Sum of ATC1", Scripts = sum(Scripts)) |> 
@@ -799,8 +824,7 @@ pbs_atc1_fc |>
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
-
+![](backgrounds/roberto-sorin-RS0-h_pyByk-unsplash.jpg){.image-left}
 
 ## {}
 
@@ -821,17 +845,21 @@ Where:
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+![](backgrounds/nicole-avagliano-TeLjs2pL5fA-unsplash.jpg){.image-right}
 
 
 ## {}
 
 ::: columns
+::: {.column width="40%"}
+:::
 ::: {.column width="60%"}
 
 ### Coherent (reconciled) forecasts
 
 ```{r}
+#| fig-height: 6
+#| fig-width: 7
 pbs_coherent_fc <- pbs_atc1 |> 
   model(ets = ETS(Scripts)) |> 
   reconcile(ets = min_trace(ets)) |> 
@@ -844,8 +872,7 @@ pbs_coherent_fc |>
 :::
 :::
 
-![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
-
+![](backgrounds/roberto-sorin-RS0-h_pyByk-unsplash.jpg){.image-left}
 
 ## {}
 
