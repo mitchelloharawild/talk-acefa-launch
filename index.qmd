@@ -809,12 +809,12 @@ pbs_atc1_fc |>
 
 ### Adjust all forecasts for coherency
 
-$$\tilde{\bm{y}}_h=\bm{S}(\bm{S}'\bm{W}_h^{-1}\bm{S})^{-1}\bm{S}'\bm{W}_h^{-1}\hat{\bm{y}}_h.$$
+$$\tilde{\mathbf{y}}_h=\mathbf{S}(\mathbf{S}'\mathbf{W}_h^{-1}\mathbf{S})^{-1}\mathbf{S}'\mathbf{W}_h^{-1}\hat{\mathbf{y}}_h.$$
 
 Where:
 
-* $\bm{S}$ defines the coherency structure, and
-* $\bm{W}_h$ are weights for each forecast
+* $\mathbf{S}$ defines the coherency structure, and
+* $\mathbf{W}_h$ are weights for each forecast
 
   (usually based on in-sample fits)
 
