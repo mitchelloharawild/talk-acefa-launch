@@ -1,0 +1,926 @@
+---
+from: markdown+emoji
+execute: 
+  cache: true
+format: 
+  letterbox-revealjs:
+    theme: custom.scss
+    progress: false
+    menu: false
+    width: 1280
+    height: 720
+filters:
+  - custom-callouts
+callout-appearance: simple
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| include: false
+# library(ggtime)
+library(dplyr)
+```
+
+## {}
+
+::: columns
+::: {.column width="37.5%"}
+:::
+::: {.column width="60%"}
+
+::: {.title data-id="title"}
+Probabilistic forecast combinations
+:::
+
+::: {.dateplace}
+1st April 2025 @ ACEFA Launch
+:::
+
+Mitchell O'Hara-Wild, Monash University
+
+::: {.callout-link}
+
+## Useful links
+
+![](resources/forum.svg){.icon} [social.mitchelloharawild.com](https://social.mitchelloharawild.com/)
+
+![](resources/projector-screen-outline.svg){.icon} [slides.mitchelloharawild.com/acefa-launch](https://slides.mitchelloharawild.com/acefa-launch)
+
+![](resources/github.svg){.icon} [mitchelloharawild/talk-acefa-launch](https://github.com/mitchelloharawild/talk-acefa-launch)
+
+:::
+
+:::
+:::
+
+![](backgrounds/sander-weeteling-KABfjuSOx74-unsplash.jpg){.image-left}
+
+
+## {}
+
+::: columns
+::: {.column width="40%"}
+:::
+::: {.column width="60%"}
+
+### Forecast combinations
+
+There are many ways in which multiple forecasts can be combined to produce more better forecasts.
+
+1. **Ensemble forecasts**
+
+   (this is what we currently do at ACEFA)
+   
+2. Decomposition forecasting
+
+3. Forecast reconciliation
+
+
+
+<!-- ::: {.fragment .fade-up} -->
+<!-- ::: {.callout-note} -->
+
+<!-- ## Today's presentation -->
+
+<!-- ... -->
+
+<!-- ::: -->
+<!-- ::: -->
+
+
+:::
+:::
+
+![](backgrounds/wolf-zimmermann-6sf5rf8QYFE-unsplash.jpg){.image-left}
+
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Ensemble forecasts
+
+Ensemble forecasts average forecasts from:
+
+* **multiple** models, of the
+* **same** time-series.
+
+
+:::{.fragment .fade-up}
+
+:::{.callout-tip}
+## Model uncertainty
+
+This is well known to improve forecast accuracy.
+
+Uncertainty over which model is closest to the data generating process is averaged over.
+:::
+
+:::
+
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Australian ambulance costs
+
+```{r}
+#| include: false
+library(fable)
+library(tsibble)
+library(ggplot2)
+ambulance <- tsibble(
+  Year = 2005:2024, 
+  Revenue = c(2.25, 2.38, 2.47, 2.67, 2.9, 2.99, 3.09, 
+              3.25, 3.45, 3.48, 3.44, 3.66, 3.96, 4.26,
+              4.46, 4.64, 5, 5.29, 5.74, 5.64),
+  index = Year
+)
+```
+
+
+```{r}
+#| fig-height: 4
+#| fig-width: 7
+ambulance |> 
+  ggplot(aes(x = Year, y = Revenue)) + 
+  geom_line()
+```
+
+:::{.fragment .fade-up}
+
+:::{.callout-caution}
+## Future trend?
+
+The trend changed in 2015 after a drop.
+
+Will it change again following the 2024 drop?
+:::
+
+:::
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Australian ambulance costs
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+ambulance_fc <- ambulance |>
+  model(
+    ETS = ETS(Revenue),
+    `TSLM Piecewise` = TSLM(Revenue ~ trend(knots = 2015))
+  ) |>
+  forecast(h = "10 years")
+ambulance_fc |>
+  autoplot(ambulance) +
+  theme(legend.position = "bottom")
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Ensemble forecasts
+
+Ensemble forecasts combine these forecasts.
+
+Ensembling uses a weighted average of forecasts.
+
+Finding the best weights is **very hard**.
+
+:::{.fragment .fade-up}
+
+:::{.callout-tip}
+## Probabilistic ensemble forecasts
+
+Combining probabilistic forecasts is done in two ways:
+
+* Probability mixtures
+* Quantile mixtures
+:::
+
+:::
+
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Australian ambulance costs
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+library(ggdist)
+ambulance_fc |> 
+  filter(Year == 2030) |> 
+  ggplot(aes(y = .model, xdist = Revenue)) + 
+  stat_slab() + 
+  labs(x = "Revenue", y = NULL, title = "Forecasts of ambulance costs in 2030")
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Australian ambulance costs
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+library(ggdist)
+library(distributional)
+ambulance_fc |> 
+  filter(Year == 2030) |> 
+  group_by(.model) |> 
+  rowwise() |> 
+  reframe(x = seq(5, 8.3, by = 0.01), cdf = cdf(Revenue, x)) |> 
+  ggplot(aes(colour = .model, x = x, y = cdf)) + 
+  geom_line() + 
+  labs(x = "Revenue", y = "Probability", title = "Forecasts of ambulance costs in 2030") +
+  theme(legend.position = "bottom")
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Probabilistic ensemble forecasts
+
+These forecast distributions can be combined mixture distributions which averages probabilities or quantiles.
+
+:::{.callout-note}
+## Probability mixtures
+
+$$ F(x) = \sum_{i=1}^{n} w_i \cdot F_i(x), \hspace{1em} f(x) = \sum_{i=1}^{n} w_i \cdot f_i(x) $$
+:::
+
+:::{.callout-note}
+## Quantile mixtures
+
+$$ F^{-1}(p) = \sum_{i=1}^{n} w_i \cdot F_i^{-1}(p) $$
+:::
+
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Probability mixtures
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+fc_2030 <- ambulance_fc |> 
+  filter(Year == 2030) |> 
+  as_tibble()
+
+prob_ensemble <- fc_2030 |>
+  group_by(Year) |> 
+  summarise(
+    .model = "Probability Mixture",
+    Revenue = `dimnames<-`(do.call(dist_mixture, c(as.list(Revenue), weights = list(c(0.5, 0.5)), type = "probability")), "Revenue")
+  )
+
+prob_ensemble |> 
+  bind_rows(fc_2030) |> 
+  rowwise() |> 
+  reframe(.model, x = seq(5, 8.3, by = 0.01), cdf = cdf(Revenue, x)) |> 
+  ggplot(aes(colour = .model, x = x, y = cdf)) + 
+  geom_line() + 
+  labs(x = "Revenue", y = "Probability", title = "Forecasts of ambulance costs in 2030") +
+  theme(legend.position = "bottom") + 
+  annotate("segment", x = 7.2, xend = 7.2, y = 0, yend = 1, linetype = "dashed") + 
+  geom_segment(aes(y = cdf(Revenue, 7.2), yend = cdf(Revenue, 7.2)), x = 0, xend = 7.2, linetype = "dashed", data = bind_rows(prob_ensemble, fc_2030))
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Probability mixtures
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+
+bind_rows(prob_ensemble, fc_2030) |> 
+  ggplot(aes(y = .model, xdist = Revenue)) + 
+  stat_slab() + 
+  labs(x = "Revenue", y = NULL, title = "Forecasts of ambulance costs in 2030")
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Quantile mixtures
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+quant_ensemble <- fc_2030 |>
+  group_by(Year) |> 
+  summarise(
+    .model = "Quantile Mixture",
+    Revenue = `dimnames<-`(do.call(dist_mixture, c(as.list(Revenue), weights = list(c(0.5, 0.5)), type = "quantile")), "Revenue")
+  )
+
+quant_ensemble |> 
+  bind_rows(fc_2030) |> 
+  rowwise() |> 
+  reframe(.model, x = seq(5, 8.3, by = 0.01), cdf = cdf(Revenue, x)) |> 
+  ggplot(aes(colour = .model, x = x, y = cdf)) + 
+  geom_line() + 
+  labs(x = "Revenue", y = "Probability", title = "Forecasts of ambulance costs in 2030") +
+  theme(legend.position = "bottom") + 
+  annotate("segment", y = 0.5, yend = 0.5, x = 5, xend = 8.3, linetype = "dashed") + 
+  geom_segment(aes(x = quantile(Revenue, 0.5), yend = quantile(Revenue, 0.5)), y = 0, yend = 0.5, linetype = "dashed", data = bind_rows(quant_ensemble, fc_2030))
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Quantile mixtures
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+
+bind_rows(quant_ensemble, fc_2030) |> 
+  ggplot(aes(y = .model, xdist = Revenue)) + 
+  stat_slab() + 
+  labs(x = "Revenue", y = NULL, title = "Forecasts of ambulance costs in 2030")
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Ensemble mixtures
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+
+bind_rows(quant_ensemble, prob_ensemble) |> 
+  ggplot(aes(y = .model, xdist = Revenue)) + 
+  stat_slab() + 
+  labs(x = "Revenue", y = NULL, title = "Forecasts of ambulance costs in 2030")
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Ensemble mixtures
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+
+
+quant_fc <- as_tibble(ambulance_fc) |>
+  group_by(Year) |> 
+  summarise(
+    .model = "Quantile Mixture",
+    Revenue = `dimnames<-`(do.call(dist_mixture, c(as.list(Revenue), weights = list(c(0.5, 0.5)), type = "quantile")), "Revenue")
+  )
+prob_fc <- as_tibble(ambulance_fc) |>
+  group_by(Year) |> 
+  summarise(
+    .model = "Probability Mixture",
+    Revenue = `dimnames<-`(do.call(dist_mixture, c(as.list(Revenue), weights = list(c(0.5, 0.5)), type = "probability")), "Revenue")
+  )
+
+bind_rows(prob_fc, quant_fc) |> 
+  as_fable(index = Year, key = .model, distribution = Revenue, response = "Revenue") |> 
+  autoplot(ambulance) +
+  facet_grid(vars(.model)) +
+  theme(legend.position = "bottom")
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Decomposition forecasts
+
+Decomposition forecasts combine forecasts from:
+
+* a **single** model, of each
+* **decomposed** series.
+
+
+:::{.fragment .fade-up}
+
+:::{.callout-tip}
+## Simpler forecasting
+
+This can simplify the modelling challenge, since each pattern can be forecasted separately.
+:::
+
+:::
+
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### PBS Cost
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+
+pbs_cost <- tsibbledata::PBS |> 
+  summarise(Cost = sum(Cost))
+pbs_cost |> 
+  autoplot(Cost)
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Decomposition methods
+
+There are many models available for separating patterns from a time series.
+
+This process is commonly used for seasonal adjustment.
+
+I'll be showing decomposition via a STL model.
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### PBS Cost
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+
+library(feasts)
+pbs_cost |> 
+  model(STL(sqrt(Cost))) |> 
+  components() |> 
+  autoplot()
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Decomposition forecasting
+
+Combine individual forecasts of the each decomposed series based on the decomposition structure.
+
+For example,
+
+$$
+y_{T+h|T} = (T+R)_{T+h|T} + S_{T+h|T}
+$$
+
+:::{.callout-tip}
+## Seasonal adjustment
+
+We usually model/forecast trend ($T$) and remainder ($R$) together with a single model.
+:::
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### PBS Cost
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+
+library(tidyr)
+pbs_components <- pbs_cost |> 
+  model(STL(sqrt(Cost))) |> 
+  components() |> 
+  select(season_adjust, season_year) |> 
+  pivot_longer(c(season_adjust, season_year), names_to = "component")
+
+pbs_components |> 
+  model(ETS(value)) |> 
+  forecast(h = "5 years") |> 
+  autoplot(pbs_components) + 
+  facet_grid(vars(component), scales = "free_y")
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### PBS Cost
+
+```{r}
+#| fig-height: 6
+#| fig-width: 7
+
+pbs_cost |> 
+  model(
+    decomposition_model(
+      dcmp = STL(sqrt(Cost)),
+      ETS(season_adjust),
+      ETS(season_year)
+    )
+  ) |> 
+  forecast(h = "5 years") |> 
+  autoplot(pbs_cost)
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Forecasts reconciliation
+
+Forecasts reconciliation combine forecasts from:
+
+* a **single** model, for
+* **each related** series.
+
+:::{.fragment .fade-up}
+
+:::{.callout-tip}
+## Improved accuracy
+
+This improves forecasting accuracy by sharing information between related series by adhering to 'coherency constraints'.
+:::
+
+:::
+
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Coherency constraints
+
+The relationships between each time series form constraints.
+
+:::{.fragment .fade-up}
+
+:::{.callout-note}
+## For example...
+
+The **total Australian infections** must equal the **sum of infections by jurisdiction**.
+:::
+:::
+
+:::{.fragment .fade-up}
+
+:::{.callout-tip}
+## Imposing constraints
+
+Forecasts of each series (total infections, and infections in each jurisdiction) won't add up!
+
+We use reconciliation to adjust forecasts for *coherency*.
+:::
+
+:::
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+
+## {}
+
+### PBS scripts by ATC 1 classification
+
+```{r}
+pbs_atc1 <- tsibbledata::PBS |> 
+  aggregate_key(ATC1, Scripts = sum(Scripts))
+pbs_atc1 |> 
+  autoplot(Scripts) + 
+  facet_wrap(vars(ATC1), scales = "free_y")
+```
+
+## {}
+
+### Produce forecasts on each series
+
+```{r}
+pbs_atc1_fc <- pbs_atc1 |> 
+  model(ETS(Scripts)) |> 
+  forecast(h = "5 years")
+pbs_atc1_fc |> 
+  autoplot(pbs_atc1 |> filter(Month > yearmonth("2000 Jan"))) + 
+  facet_wrap(vars(ATC1), scales = "free_y")
+```
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Forecasts aren't coherent
+
+```{r}
+pbs_atc1_fc |> 
+  filter(!is_aggregated(ATC1)) |> 
+  summarise(.model = "Sum of ATC1", Scripts = sum(Scripts)) |> 
+  # sum() is invalid somehow? recreate it.
+  mutate(Scripts = dist_normal(mean(Scripts), sqrt(variance(Scripts)))) |> 
+  as_fable(key = .model) |> 
+  bind_rows(pbs_atc1_fc |> filter(is_aggregated(ATC1)) |> transmute(.model = "Forecast of total", Scripts)) |> 
+  autoplot(pbs_atc1 |> filter(is_aggregated(ATC1), Month > yearmonth("2000 Jan")) |> as_tsibble(key = NULL)) + 
+  facet_grid(vars(.model), scales = "free_y") + 
+  theme(legend.position = "bottom")
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Adjust all forecasts for coherency
+
+$$\tilde{\bm{y}}_h=\bm{S}(\bm{S}'\bm{W}_h^{-1}\bm{S})^{-1}\bm{S}'\bm{W}_h^{-1}\hat{\bm{y}}_h.$$
+
+Where:
+
+* $\bm{S}$ defines the coherency structure, and
+* $\bm{W}_h$ are weights for each forecast
+
+  (usually based on in-sample fits)
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+::: columns
+::: {.column width="60%"}
+
+### Coherent (reconciled) forecasts
+
+```{r}
+pbs_coherent_fc <- pbs_atc1 |> 
+  model(ets = ETS(Scripts)) |> 
+  reconcile(ets = min_trace(ets)) |> 
+  forecast(h = "5 years")
+pbs_coherent_fc |> 
+  filter(is_aggregated(ATC1)) |> 
+  autoplot(pbs_atc1 |> filter(Month > yearmonth("2000 Jan")))
+```
+
+:::
+:::
+
+![](backgrounds/andrik-langfield-0rTCXZM7Xfo-unsplash.jpg){.image-right}
+
+
+## {}
+
+### All forecasts are adjusted for coherency
+
+```{r}
+pbs_coherent_fc |> 
+  autoplot(pbs_atc1 |> filter(Month > yearmonth("2000 Jan"))) + 
+  facet_wrap(vars(ATC1), scales = "free_y")
+```
+
+## Thanks for your time!
+
+::: columns
+::: {.column width="60%"}
+
+::: {.callout-tip}
+## Summary
+
+* Reduce model uncertainty with ensemble forecasts
+* Decomposition forecasting combines simpler forecasts
+* Leverage related information with reconciliation
+
+:::
+
+::: {.callout-link}
+
+## Useful links
+
+![](resources/forum.svg){.icon} [social.mitchelloharawild.com](https://social.mitchelloharawild.com/)
+
+![](resources/projector-screen-outline.svg){.icon} [slides.mitchelloharawild.com/acefa-launch](https://slides.mitchelloharawild.com/acefa-launch)
+
+![](resources/github.svg){.icon} [mitchelloharawild/talk-acefa-launch](https://github.com/mitchelloharawild/talk-acefa-launch)
+:::
+
+:::
+:::
+
+![](backgrounds/meric-dagli-7NBO76G5JsE-unsplash.jpg){.image-right}
+
+## Unsplash credits
+
+::: {.callout-unsplash}
+
+## Thanks to these Unsplash contributors for their photos
+
+```{r unsplash}
+#| echo: FALSE
+#| cache: TRUE
+library(httr)
+library(purrr)
+unsplash_pattern <- ".*-(.{11})-unsplash\\.jpg.*"
+slides <- readLines("index.qmd")
+backgrounds <- slides[grepl("backgrounds/.+?unsplash.jpg", slides)]
+images <- unique(sub(".*\\(backgrounds/(.+?)\\).*", "\\1", backgrounds))
+images <- images[grepl(unsplash_pattern, images)]
+ids <- sub(unsplash_pattern, "\\1", images)
+
+get_unsplash_credit <- function(id) {
+  unsplash_url <- "https://api.unsplash.com/" 
+  my_response <- httr::GET(unsplash_url, path = c("photos", id), query = list(client_id=Sys.getenv("UNSPLASH_ACCESS")))
+  xml <- content(my_response)
+  
+  name <- xml$user$name
+  desc <- xml$description%||%"Photo"
+  sprintf(
+    "* %s: [%s%s](%s)",
+    name,
+    strtrim(desc,pmax(1, 60-nchar(name))),
+    if(nchar(desc)>(60-nchar(name))) "..." else "",
+    modify_url("https://unsplash.com/", path = file.path("photos", xml$id))
+  )
+}
+htmltools::includeMarkdown(paste0(map_chr(ids, get_unsplash_credit), collapse = "\n"))
+```
+
+:::

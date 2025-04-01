@@ -19,8 +19,14 @@ Forecast combination leverages the information captured by multiple models to pr
 #### Structure
 
 * Combining forecasts from multiple models
+  * Density mixture ensemble
+  * Quantile mixture ensemble
 * Combining forecasts of a decomposition
+  * Decomposition methods
+  * Recombination
 * Combining forecasts from multiple series
+  * Forecast reconciliation
+  * Bottom-up (middle-out, top-down), optimal
 * Statistical computing with the distributional package
 
 ### Format
